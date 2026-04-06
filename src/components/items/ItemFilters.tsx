@@ -7,7 +7,7 @@ import type { ItemFilters } from '../../types/filters'
 export const ItemFiltersPanel = ({ filters, onChange }: { filters: ItemFilters; onChange: (filters: ItemFilters) => void }) => (
   <AppCard className="space-y-3">
     <SearchBar value={filters.keyword} onChange={(keyword) => onChange({ ...filters, keyword })} placeholder="搜索物品名称" />
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-2 gap-2">
       <AppSelect value={filters.destination} onChange={(event) => onChange({ ...filters, destination: event.target.value as ItemFilters['destination'] })}>
         <option value="全部">全部目的地</option>
         {ITEM_DESTINATIONS.map((option) => <option key={option}>{option}</option>)}
@@ -20,6 +20,16 @@ export const ItemFiltersPanel = ({ filters, onChange }: { filters: ItemFilters; 
         <option value="全部">全部分类</option>
         {ITEM_CATEGORIES.map((option) => <option key={option}>{option}</option>)}
       </AppSelect>
+      <AppSelect value={filters.sortBy} onChange={(event) => onChange({ ...filters, sortBy: event.target.value as ItemFilters['sortBy'] })}>
+        <option value="updated_desc">最近更新</option>
+        <option value="updated_asc">最早更新</option>
+        <option value="name_asc">名称排序</option>
+        <option value="value_desc">估值从高到低</option>
+      </AppSelect>
     </div>
+    <label className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
+      <input type="checkbox" checked={filters.pendingOnly} onChange={(event) => onChange({ ...filters, pendingOnly: event.target.checked })} />
+      仅看未处理物品
+    </label>
   </AppCard>
 )

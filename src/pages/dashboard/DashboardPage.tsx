@@ -1,21 +1,24 @@
-import { Boxes, Clock3, Package, Truck } from 'lucide-react'
-import { useBoxesStore, useItemsStore } from '../../store'
-import { getDeliveredBoxes, getInTransitBoxes } from '../../store/selectors'
+import { Boxes, Clock3, History, Package, Truck } from 'lucide-react'
 import { AppCard } from '../../components/common/AppCard'
 import { EmptyState } from '../../components/common/EmptyState'
 import { StatCard } from '../../components/common/StatCard'
-import { DestinationBadge } from '../../components/badges/DestinationBadge'
 import { BoxStatusBadge } from '../../components/badges/BoxStatusBadge'
+import { DestinationBadge } from '../../components/badges/DestinationBadge'
 import { ItemStatusBadge } from '../../components/badges/ItemStatusBadge'
+import { useBoxesStore, useItemsStore, useUiStore } from '../../store'
+import { getDeliveredBoxes, getInTransitBoxes } from '../../store/selectors'
+import { formatDateTime } from '../../utils'
 
 export const DashboardPage = () => {
   const items = useItemsStore((state) => state.items)
   const boxes = useBoxesStore((state) => state.boxes)
+  const activityLogs = useUiStore((state) => state.activityLogs)
   const inTransit = getInTransitBoxes(boxes)
   const delivered = getDeliveredBoxes(boxes)
   const pendingItems = items.filter((item) => item.status === '未处理').slice(0, 5)
-  const recentBoxes = [...boxes].slice(0, 3)
+  const recentBoxes = [...boxes].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 3)
   const destinationStats = ['北京-亦庄', '老家-朝阳', '随身携带', '二手转卖', '丢弃/赠送'].map((destination) => ({ destination, count: items.filter((item) => item.destination === destination).length }))
+  const missingLogisticsCount = boxes.filter((box) => (box.status === '已封箱' || box.status === '已寄出') && (!box.logisticsCompany || !box.trackingNumber)).length
 
   return (
     <div className="space-y-4">
@@ -27,7 +30,10 @@ export const DashboardPage = () => {
       </section>
 
       <AppCard className="space-y-3">
-        <h2 className="text-sm font-semibold text-ink">按目的地统计</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-ink">按目的地统计</h2>
+          <span className="text-xs text-slate-400">物流缺失 {missingLogisticsCount} 箱</span>
+        </div>
         <div className="grid grid-cols-1 gap-2">
           {destinationStats.map((entry) => (
             <div key={entry.destination} className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2">
@@ -72,6 +78,22 @@ export const DashboardPage = () => {
           )) : <EmptyState title="没有待处理物品" description="当前所有物品都已经进入后续流程。" />}
         </AppCard>
       </section>
+
+      <AppCard className="space-y-3">
+        <div className="flex items-center gap-2">
+          <History className="size-4 text-slate-400" />
+          <h2 className="text-sm font-semibold text-ink">最近操作</h2>
+        </div>
+        {activityLogs.length ? activityLogs.map((log) => (
+          <div key={log.id} className="rounded-xl bg-slate-50 px-3 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-medium text-ink">{log.title}</p>
+              <span className="text-xs text-slate-400">{formatDateTime(log.createdAt)}</span>
+            </div>
+            {log.detail ? <p className="mt-1 text-xs text-slate-500">{log.detail}</p> : null}
+          </div>
+        )) : <EmptyState title="还没有最近操作" description="你后续的新增、装箱、状态流转都会记录在这里。" />}
+      </AppCard>
     </div>
   )
 }

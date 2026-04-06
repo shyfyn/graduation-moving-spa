@@ -4,7 +4,7 @@ import { AppButton } from '../common/AppButton'
 import { AppSelect } from '../common/AppSelect'
 import type { ItemDestination, ItemStatus } from '../../types'
 
-export const BatchActionBar = ({ selectedCount, batchDestination, batchStatus, onDestinationChange, onStatusChange, onApply, onDelete }: { selectedCount: number; batchDestination: ItemDestination; batchStatus: ItemStatus; onDestinationChange: (value: ItemDestination) => void; onStatusChange: (value: ItemStatus) => void; onApply: () => void; onDelete: () => void }) => {
+export const BatchActionBar = ({ selectedCount, batchDestination, batchStatus, warning, onDestinationChange, onStatusChange, onApply, onDelete }: { selectedCount: number; batchDestination: ItemDestination; batchStatus: ItemStatus; warning?: string; onDestinationChange: (value: ItemDestination) => void; onStatusChange: (value: ItemStatus) => void; onApply: () => void; onDelete: () => void }) => {
   if (!selectedCount) return null
 
   return (
@@ -18,6 +18,7 @@ export const BatchActionBar = ({ selectedCount, batchDestination, batchStatus, o
           {ITEM_STATUSES.map((option) => <option key={option}>{option}</option>)}
         </AppSelect>
       </div>
+      {warning ? <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-700">{warning}</p> : null}
       <div className="flex gap-2">
         <AppButton variant="secondary" fullWidth onClick={onApply}>批量更新</AppButton>
         <AppButton variant="danger" fullWidth onClick={onDelete}>批量删除</AppButton>

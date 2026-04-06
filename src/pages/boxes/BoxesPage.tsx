@@ -6,6 +6,7 @@ import { BoxForm } from '../../components/boxes/BoxForm'
 import { BoxList } from '../../components/boxes/BoxList'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useToast } from '../../hooks/useToast'
+import type { BoxFormValues } from '../../schemas/boxSchema'
 import { useBoxesStore, useItemsStore } from '../../store'
 import { ensureBoxCanDelete } from '../../utils/businessRules'
 import { createId } from '../../utils'
@@ -30,7 +31,22 @@ export const BoxesPage = () => {
     }
   }
 
-  const handleSave = async (values: any) => {
+  const getLogisticsWarning = (box: Box) => {
+    if (box.status === '已封箱' && (!box.logisticsCompany || !box.trackingNumber)) {
+      return '已封箱但未填写物流信息，寄出前请先补全。'
+    }
+    if (box.status === '已寄出' && (!box.logisticsCompany || !box.trackingNumber)) {
+      return '当前状态是已寄出，但物流信息不完整。'
+    }
+    return undefined
+  }
+
+  const closeDialog = () => {
+    setOpen(false)
+    setEditingBox(null)
+  }
+
+  const handleSave = async (values: BoxFormValues) => {
     try {
       if (editingBox) {
         await updateBox(editingBox.id, values)
@@ -39,8 +55,7 @@ export const BoxesPage = () => {
         await createBox({ id: createId('box'), ...values })
         toast.success('箱子已创建')
       }
-      setOpen(false)
-      setEditingBox(null)
+      closeDialog()
     } catch (error) {
       toast.error(error instanceof Error ? error.message : '保存失败')
     }
@@ -62,10 +77,11 @@ export const BoxesPage = () => {
   return (
     <div className="space-y-4">
       <AppButton fullWidth onClick={() => { setEditingBox(null); setOpen(true) }}><Plus className="mr-1 size-4" />创建箱子</AppButton>
-      <BoxList boxes={boxes} getMeta={getMeta} onEdit={(box) => { setEditingBox(box); setOpen(true) }} onDelete={handleDelete} />
-      <AppDialog open={open} title={editingBox ? '编辑箱子' : '创建箱子'} onClose={() => { setOpen(false); setEditingBox(null) }}>
+      <BoxList boxes={boxes} getMeta={getMeta} getLogisticsWarning={getLogisticsWarning} onEdit={(box) => { setEditingBox(box); setOpen(true) }} onDelete={handleDelete} />
+      <AppDialog open={open} title={editingBox ? '编辑箱子' : '创建箱子'} onClose={closeDialog}>
         <BoxForm defaultValues={editingBox ?? undefined} onSubmit={handleSave} submitText={editingBox ? '保存修改' : '创建箱子'} />
       </AppDialog>
     </div>
   )
 }
+

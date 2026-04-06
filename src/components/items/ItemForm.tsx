@@ -6,8 +6,10 @@ import { AppButton } from '../common/AppButton'
 import { AppInput } from '../common/AppInput'
 import { AppSelect } from '../common/AppSelect'
 
+const noteTemplates = ['开箱优先', '先带走', '易碎轻放', '放箱顶层', '送人前确认']
+
 export const ItemForm = ({ defaultValues, onSubmit, submitText = '保存' }: { defaultValues?: Partial<ItemFormValues>; onSubmit: (values: ItemFormValues) => void | Promise<void>; submitText?: string }) => {
-  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<ItemFormValues>({
+  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<ItemFormValues>({
     resolver: zodResolver(itemSchema) as never,
     defaultValues: {
       name: '',
@@ -21,6 +23,12 @@ export const ItemForm = ({ defaultValues, onSubmit, submitText = '保存' }: { d
   })
 
   const destination = watch('destination')
+  const notes = watch('notes') ?? ''
+
+  const appendNote = (template: string) => {
+    const next = notes ? `${notes}${notes.endsWith('；') ? '' : '；'}${template}` : template
+    setValue('notes', next, { shouldDirty: true })
+  }
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit(async (values) => onSubmit(values))}>
@@ -64,6 +72,13 @@ export const ItemForm = ({ defaultValues, onSubmit, submitText = '保存' }: { d
       <div className="space-y-1">
         <label className="text-sm font-medium text-ink">备注</label>
         <textarea className="min-h-24 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-slate-400" {...register('notes')} placeholder="可记录打包提醒、特殊说明" />
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {noteTemplates.map((template) => (
+          <button key={template} type="button" className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600" onClick={() => appendNote(template)}>
+            + {template}
+          </button>
+        ))}
       </div>
       <label className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
         <input type="checkbox" {...register('isFragile')} />

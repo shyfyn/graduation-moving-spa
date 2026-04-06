@@ -1,3 +1,4 @@
+import { AlertTriangle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { AppCard } from '../common/AppCard'
 import { AppButton } from '../common/AppButton'
@@ -6,7 +7,7 @@ import { DestinationBadge } from '../badges/DestinationBadge'
 import { currency } from '../../utils'
 import type { Box } from '../../types'
 
-export const BoxCard = ({ box, itemCount, totalValue, onEdit, onDelete }: { box: Box; itemCount: number; totalValue: number; onEdit: () => void; onDelete: () => void }) => (
+export const BoxCard = ({ box, itemCount, totalValue, logisticsWarning, onEdit, onDelete }: { box: Box; itemCount: number; totalValue: number; logisticsWarning?: string; onEdit: () => void; onDelete: () => void }) => (
   <AppCard className="space-y-3">
     <div className="flex items-start justify-between gap-3">
       <div>
@@ -20,6 +21,7 @@ export const BoxCard = ({ box, itemCount, totalValue, onEdit, onDelete }: { box:
       <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">物品 {itemCount}</span>
       <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">估值 {currency(totalValue)}</span>
     </div>
+    {logisticsWarning ? <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-700"><AlertTriangle className="size-4" />{logisticsWarning}</div> : null}
     {box.notes ? <p className="rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-500">{box.notes}</p> : null}
     <div className="grid grid-cols-3 gap-2">
       <Link to={`/boxes/${box.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-ink transition hover:border-slate-300">查看详情</Link>

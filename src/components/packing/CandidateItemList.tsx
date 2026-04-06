@@ -2,13 +2,20 @@ import { EmptyState } from '../common/EmptyState'
 import { AppCard } from '../common/AppCard'
 import { DestinationBadge } from '../badges/DestinationBadge'
 import { currency } from '../../utils'
-import type { Item } from '../../types'
+import type { Item, ItemCategory } from '../../types'
 
-export const CandidateItemList = ({ items, selectedIds, onToggle }: { items: Item[]; selectedIds: string[]; onToggle: (id: string) => void }) => {
+export const CandidateItemList = ({ items, selectedIds, categoryFilter, onToggle, onSelectAllVisible, onClearVisible }: { items: Item[]; selectedIds: string[]; categoryFilter: ItemCategory | '全部'; onToggle: (id: string) => void; onSelectAllVisible: () => void; onClearVisible: () => void }) => {
   if (!items.length) return <EmptyState title="没有候选物品" description="当前箱子目的地没有待处理物品，或者这个箱子已装满。" />
 
   return (
     <div className="space-y-3">
+      <div className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-500">
+        <span>当前分类：{categoryFilter}</span>
+        <div className="flex gap-3">
+          <button type="button" onClick={onSelectAllVisible}>全选可见</button>
+          <button type="button" onClick={onClearVisible}>清空可见</button>
+        </div>
+      </div>
       {items.map((item) => (
         <AppCard key={item.id} className="flex items-start gap-3">
           <input type="checkbox" className="mt-1 size-4" checked={selectedIds.includes(item.id)} onChange={() => onToggle(item.id)} />
