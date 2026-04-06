@@ -7,12 +7,14 @@ export const BoxList = ({
   getMeta,
   getLogisticsWarning,
   onEdit,
+  onClone,
   onDelete,
 }: {
   boxes: Box[]
   getMeta: (boxId: string) => { itemCount: number; totalValue: number }
   getLogisticsWarning: (box: Box) => string | undefined
   onEdit: (box: Box) => void
+  onClone: (box: Box) => void
   onDelete: (box: Box) => void
 }) => {
   if (!boxes.length) return <EmptyState title="还没有箱子" description="先创建一个箱子，再进入装箱工作台整理物品。" />
@@ -29,6 +31,7 @@ export const BoxList = ({
             totalValue={meta.totalValue}
             logisticsWarning={getLogisticsWarning(box)}
             onEdit={() => onEdit(box)}
+            onClone={() => onClone(box)}
             onDelete={() => onDelete(box)}
           />
         )

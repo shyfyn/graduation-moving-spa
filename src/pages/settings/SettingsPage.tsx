@@ -13,8 +13,10 @@ import { importSchema } from '../../schemas/importSchema'
 import { useBoxesStore, useChecklistStore, useItemsStore } from '../../store'
 import { formatDateTime } from '../../utils'
 import { getLastBackupAt, markBackupNow } from '../../utils/backup'
+import { downloadHtml } from '../../utils/downloadHtml'
 import { downloadJson, readJsonFile } from '../../utils/exportImport'
 import { inspectLocalData } from '../../utils/healthCheck'
+import { createPosterHtml, createShareSnapshotHtml } from '../../utils/smartFeatures'
 
 export const SettingsPage = () => {
   const items = useItemsStore((state) => state.items)
@@ -134,6 +136,31 @@ export const SettingsPage = () => {
           }
         }} />
         <AppButton variant="secondary" fullWidth onClick={() => inputRef.current?.click()}>导入 JSON</AppButton>
+      </AppCard>
+
+      <AppCard className="space-y-3">
+        <h2 className="text-sm font-semibold text-ink">分享页与图鉴导出</h2>
+        <p className="text-sm text-slate-600">可导出单文件 HTML，通过微信或文件传输助手发送给家人，对方打开就是只读页面。</p>
+        <AppButton
+          fullWidth
+          variant="secondary"
+          onClick={() => {
+            downloadHtml('毕业搬家分享页.html', createShareSnapshotHtml({ items, boxes, checklist }))
+            toast.success('分享页 HTML 已导出')
+          }}
+        >
+          导出分享页 HTML
+        </AppButton>
+        <AppButton
+          fullWidth
+          variant="secondary"
+          onClick={() => {
+            downloadHtml('我的行李数字图鉴.html', createPosterHtml({ items, boxes }))
+            toast.success('数字图鉴海报 HTML 已导出')
+          }}
+        >
+          导出数字图鉴海报
+        </AppButton>
       </AppCard>
 
       <AppCard className="space-y-3">

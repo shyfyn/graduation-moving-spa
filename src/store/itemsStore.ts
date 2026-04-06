@@ -21,6 +21,8 @@ type ItemStore = {
   bulkUpdate: (ids: string[], updates: Partial<Pick<Item, 'destination' | 'status'>>) => Promise<void>
   assignItemsToBox: (boxId: string, itemIds: string[]) => Promise<void>
   removeItemFromBox: (itemId: string) => Promise<void>
+  clearBoxItems: (boxId: string) => Promise<void>
+  moveItemToDeclutter: (itemId: string) => Promise<void>
 }
 
 export const useItemsStore = create<ItemStore>((set, get) => ({
@@ -120,6 +122,44 @@ export const useItemsStore = create<ItemStore>((set, get) => ({
     useUiStore.getState().logActivity('移出了箱内物品', `${current.name} <- ${box.boxCode}`)
     useUiStore.getState().setUndoAction({
       label: `撤销移出 ${current.name}`,
+      run: async () => {
+        await itemsRepo.put(current)
+        set((state) => ({ items: state.items.map((item) => (item.id === itemId ? current : item)) }))
+      },
+    })
+    set((state) => ({ items: state.items.map((item) => (item.id === itemId ? next : item)) }))
+  },
+  clearBoxItems: async (boxId) => {
+    const box = useBoxesStore.getState().boxes.find((entry) => entry.id === boxId)
+    if (!box) throw new Error('未找到箱子')
+    ensureBoxCanMutateItems(box)
+    const currentItems = get().items.filter((item) => item.boxId === boxId)
+    const reverted = currentItems.map((item) => ({ ...item, boxId: null, status: '未处理' as ItemStatus, updatedAt: nowIso() }))
+    await itemsRepo.bulkPut(reverted)
+    useUiStore.getState().logActivity('一键打散了箱子', `${box.boxCode} 共 ${reverted.length} 件`)
+    useUiStore.getState().setUndoAction({
+      label: `撤销打散 ${box.boxCode}`,
+      run: async () => {
+        await itemsRepo.bulkPut(currentItems)
+        set((state) => ({ items: state.items.map((item) => currentItems.find((target) => target.id === item.id) ?? item) }))
+      },
+    })
+    set((state) => ({ items: state.items.map((item) => reverted.find((target) => target.id === item.id) ?? item) }))
+  },
+  moveItemToDeclutter: async (itemId) => {
+    const current = get().items.find((item) => item.id === itemId)
+    if (!current) return
+    const next: Item = {
+      ...current,
+      destination: '丢弃/赠送',
+      boxId: null,
+      status: '未处理',
+      updatedAt: nowIso(),
+    }
+    await itemsRepo.put(next)
+    useUiStore.getState().logActivity('标记了断舍离物品', current.name)
+    useUiStore.getState().setUndoAction({
+      label: `撤销断舍离 ${current.name}`,
       run: async () => {
         await itemsRepo.put(current)
         set((state) => ({ items: state.items.map((item) => (item.id === itemId ? current : item)) }))

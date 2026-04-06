@@ -8,9 +8,11 @@ import { BoxStatusActions } from '../../components/boxes/BoxStatusActions'
 import { BoxSummary } from '../../components/boxes/BoxSummary'
 import { LogisticsForm } from '../../components/boxes/LogisticsForm'
 import { QRCodePanel } from '../../components/boxes/QRCodePanel'
+import { useConfirm } from '../../hooks/useConfirm'
 import { useToast } from '../../hooks/useToast'
 import type { LogisticsFormValues } from '../../schemas/boxSchema'
 import { useBoxesStore, useItemsStore } from '../../store'
+import { triggerHaptic } from '../../utils/haptics'
 
 export const BoxDetailPage = () => {
   const { id } = useParams()
@@ -18,9 +20,11 @@ export const BoxDetailPage = () => {
   const boxes = useBoxesStore((state) => state.boxes)
   const items = useItemsStore((state) => state.items)
   const removeItemFromBox = useItemsStore((state) => state.removeItemFromBox)
+  const clearBoxItems = useItemsStore((state) => state.clearBoxItems)
   const changeBoxStatus = useBoxesStore((state) => state.changeBoxStatus)
   const updateLogistics = useBoxesStore((state) => state.updateLogistics)
   const toast = useToast()
+  const confirm = useConfirm()
   const [showLogistics, setShowLogistics] = useState(false)
   const [search, setSearch] = useState('')
 
@@ -46,6 +50,7 @@ export const BoxDetailPage = () => {
   const safeChangeStatus = async (status: '打包中' | '已封箱' | '已寄出' | '已签收') => {
     try {
       await changeBoxStatus(box.id, status)
+      if (status === '已封箱') triggerHaptic('confirm')
       toast.success(`箱子状态已更新为 ${status}`)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : '状态更新失败')
@@ -71,6 +76,23 @@ export const BoxDetailPage = () => {
     }
   }
 
+  const handleScatter = async () => {
+    const ok = await confirm({
+      title: `打散 ${box.boxCode}？`,
+      description: '箱内物品会全部退回未处理状态，5 秒内可撤销。',
+      confirmText: '打散箱子',
+      destructive: true,
+    })
+    if (!ok) return
+    try {
+      await clearBoxItems(box.id)
+      triggerHaptic('warning')
+      toast.success('箱内物品已全部打散')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : '打散失败')
+    }
+  }
+
   return (
     <div className="space-y-4">
       <BoxSummary box={box} itemCount={boxItems.length} totalValue={totalValue} />
@@ -82,6 +104,9 @@ export const BoxDetailPage = () => {
         onShip={() => safeChangeStatus('已寄出')}
         onDeliver={() => safeChangeStatus('已签收')}
       />
+      <AppButton fullWidth variant="secondary" onClick={handleScatter} disabled={box.status !== '打包中' || !boxItems.length}>
+        一键清空并打散箱子
+      </AppButton>
       <AppCard className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-ink">物流信息</h3>
@@ -93,6 +118,7 @@ export const BoxDetailPage = () => {
       <QRCodePanel value={box.qrCodeValue} onCopy={async () => {
         if (!box.qrCodeValue) return
         await navigator.clipboard.writeText(box.qrCodeValue)
+        triggerHaptic('success')
         toast.success('二维码内容已复制')
       }} />
       <AppCard className="space-y-3">

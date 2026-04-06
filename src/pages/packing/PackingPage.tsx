@@ -11,13 +11,16 @@ import { PackingSummary } from '../../components/packing/PackingSummary'
 import { useToast } from '../../hooks/useToast'
 import { useBoxesStore, useItemsStore } from '../../store'
 import type { Item, ItemCategory } from '../../types'
+import { triggerHaptic } from '../../utils/haptics'
 import { getLastPackingBoxId, setLastPackingBoxId } from '../../utils/preferences'
+import { getCompanionSuggestions } from '../../utils/smartFeatures'
 
 export const PackingPage = () => {
   const boxes = useBoxesStore((state) => state.boxes)
   const items = useItemsStore((state) => state.items)
   const assignItemsToBox = useItemsStore((state) => state.assignItemsToBox)
   const removeItemFromBox = useItemsStore((state) => state.removeItemFromBox)
+  const moveItemToDeclutter = useItemsStore((state) => state.moveItemToDeclutter)
   const [selectedBoxId, setSelectedBoxId] = useState('')
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([])
   const [categoryFilter, setCategoryFilter] = useState<ItemCategory | '全部'>('全部')
@@ -50,6 +53,7 @@ export const PackingPage = () => {
   }, {}), [filteredPackedItems])
   const totalValue = packedItems.reduce((sum, item) => sum + (item.estimatedValue ?? 0) * (item.quantity ?? 1), 0)
   const fragileCount = packedItems.filter((item) => item.isFragile).length
+  const companionSuggestions = useMemo(() => getCompanionSuggestions({ packedItems, candidateItems }), [packedItems, candidateItems])
 
   const toggleItem = (id: string) => setSelectedItemIds((current) => current.includes(id) ? current.filter((value) => value !== id) : [...current, id])
 
@@ -57,6 +61,7 @@ export const PackingPage = () => {
     if (!selectedBoxId || !selectedItemIds.length) return
     try {
       await assignItemsToBox(selectedBoxId, selectedItemIds)
+      triggerHaptic('pack')
       setSelectedItemIds([])
       toast.success('物品已加入箱子')
     } catch (error) {
@@ -92,9 +97,21 @@ export const PackingPage = () => {
           onToggle={toggleItem}
           onSelectAllVisible={() => setSelectedItemIds((current) => Array.from(new Set([...current, ...candidateItems.map((item) => item.id)])))}
           onClearVisible={() => setSelectedItemIds((current) => current.filter((id) => !candidateItems.some((item) => item.id === id)))}
+          onSwipePack={(item) => void assignItemsToBox(selectedBoxId, [item.id]).then(() => { triggerHaptic('pack'); toast.success(`${item.name} 已滑动装箱`) }).catch((error) => toast.error(error instanceof Error ? error.message : '滑动装箱失败'))}
+          onSwipeDeclutter={(item) => void moveItemToDeclutter(item.id).then(() => { triggerHaptic('warning'); toast.success(`${item.name} 已标记为断舍离`) }).catch((error) => toast.error(error instanceof Error ? error.message : '断舍离失败'))}
         />
         <AppButton fullWidth onClick={handleAssign} disabled={!selectedItemIds.length || !selectedBoxId}>加入当前箱子</AppButton>
       </div>
+      {companionSuggestions.length ? (
+        <AppCard className="space-y-3">
+          <h2 className="text-sm font-semibold text-ink">打包关联推荐</h2>
+          {companionSuggestions.map((entry) => (
+            <div key={entry.source} className="rounded-xl bg-amber-50 px-3 py-3 text-sm text-amber-700">
+              已装入“{entry.source}”，是否还要一起装：{entry.suggestions.join('、')}
+            </div>
+          ))}
+        </AppCard>
+      ) : null}
       <div className="space-y-2">
         <h2 className="text-sm font-semibold text-ink">箱内物品</h2>
         <PackedItemList

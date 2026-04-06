@@ -17,6 +17,7 @@ export const BoxesPage = () => {
   const createBox = useBoxesStore((state) => state.createBox)
   const updateBox = useBoxesStore((state) => state.updateBox)
   const deleteBox = useBoxesStore((state) => state.deleteBox)
+  const cloneBox = useBoxesStore((state) => state.cloneBox)
   const items = useItemsStore((state) => state.items)
   const [open, setOpen] = useState(false)
   const [editingBox, setEditingBox] = useState<Box | null>(null)
@@ -74,10 +75,19 @@ export const BoxesPage = () => {
     }
   }
 
+  const handleClone = async (box: Box) => {
+    try {
+      const cloned = await cloneBox(box.id)
+      toast.success(`已创建模板箱 ${cloned.boxCode}`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : '克隆失败')
+    }
+  }
+
   return (
     <div className="space-y-4">
       <AppButton fullWidth onClick={() => { setEditingBox(null); setOpen(true) }}><Plus className="mr-1 size-4" />创建箱子</AppButton>
-      <BoxList boxes={boxes} getMeta={getMeta} getLogisticsWarning={getLogisticsWarning} onEdit={(box) => { setEditingBox(box); setOpen(true) }} onDelete={handleDelete} />
+      <BoxList boxes={boxes} getMeta={getMeta} getLogisticsWarning={getLogisticsWarning} onEdit={(box) => { setEditingBox(box); setOpen(true) }} onClone={handleClone} onDelete={handleDelete} />
       <AppDialog open={open} title={editingBox ? '编辑箱子' : '创建箱子'} onClose={closeDialog}>
         <BoxForm defaultValues={editingBox ?? undefined} onSubmit={handleSave} submitText={editingBox ? '保存修改' : '创建箱子'} />
       </AppDialog>

@@ -4,6 +4,7 @@ import { generateBoxQrPayload, nowIso } from '../utils'
 import { validateShipBox } from '../utils/businessRules'
 import { useUiStore } from './uiStore'
 import type { Box, BoxStatus, LogisticsCompany } from '../types'
+import { suggestNextBoxCode } from '../utils/boxCode'
 
 type BoxStore = {
   boxes: Box[]
@@ -12,6 +13,7 @@ type BoxStore = {
   createBox: (input: Omit<Box, 'createdAt' | 'updatedAt' | 'qrCodeValue' | 'sealedAt' | 'shippedAt' | 'deliveredAt'>) => Promise<Box>
   updateBox: (id: string, updates: Partial<Box>) => Promise<Box>
   deleteBox: (id: string) => Promise<void>
+  cloneBox: (id: string) => Promise<Box>
   changeBoxStatus: (id: string, status: BoxStatus) => Promise<Box>
   updateLogistics: (id: string, payload: { logisticsCompany: LogisticsCompany; trackingNumber: string }) => Promise<Box>
 }
@@ -44,6 +46,27 @@ export const useBoxesStore = create<BoxStore>((set, get) => ({
     await boxesRepo.delete(id)
     if (current) useUiStore.getState().logActivity('删除了箱子', current.boxCode)
     set((state) => ({ boxes: state.boxes.filter((box) => box.id !== id) }))
+  },
+  cloneBox: async (id) => {
+    const current = get().boxes.find((box) => box.id === id)
+    if (!current) throw new Error('箱子不存在')
+    const next: Box = {
+      ...current,
+      id: `box-${Math.random().toString(36).slice(2, 10)}`,
+      boxCode: suggestNextBoxCode(current.boxCode, get().boxes.map((box) => box.boxCode)),
+      status: '打包中',
+      trackingNumber: undefined,
+      qrCodeValue: undefined,
+      sealedAt: undefined,
+      shippedAt: undefined,
+      deliveredAt: undefined,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+    }
+    await boxesRepo.put(next)
+    useUiStore.getState().logActivity('克隆了箱子模板', `${current.boxCode} -> ${next.boxCode}`)
+    set((state) => ({ boxes: [next, ...state.boxes] }))
+    return next
   },
   changeBoxStatus: async (id, status) => {
     const current = get().boxes.find((box) => box.id === id)

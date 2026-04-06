@@ -19,6 +19,8 @@ export const DashboardPage = () => {
   const recentBoxes = [...boxes].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 3)
   const destinationStats = ['北京-亦庄', '老家-朝阳', '随身携带', '二手转卖', '丢弃/赠送'].map((destination) => ({ destination, count: items.filter((item) => item.destination === destination).length }))
   const missingLogisticsCount = boxes.filter((box) => (box.status === '已封箱' || box.status === '已寄出') && (!box.logisticsCompany || !box.trackingNumber)).length
+  const totalItems = Math.max(items.length, 1)
+  const statusStats = ['未处理', '已打包', '已寄出', '已送达'].map((status) => ({ status, count: items.filter((item) => item.status === status).length }))
 
   return (
     <div className="space-y-4">
@@ -39,6 +41,31 @@ export const DashboardPage = () => {
             <div key={entry.destination} className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2">
               <DestinationBadge destination={entry.destination as never} />
               <span className="text-sm font-medium text-slate-600">{entry.count} 件</span>
+            </div>
+          ))}
+        </div>
+      </AppCard>
+
+      <AppCard className="space-y-3">
+        <h2 className="text-sm font-semibold text-ink">轻量数据可视化</h2>
+        <div className="space-y-3">
+          {destinationStats.map((entry) => (
+            <div key={entry.destination} className="space-y-1">
+              <div className="flex items-center justify-between text-xs text-slate-500">
+                <span>{entry.destination}</span>
+                <span>{entry.count} 件</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                <div className={`h-full rounded-full ${entry.destination === '北京-亦庄' ? 'bg-sky-500' : entry.destination === '老家-朝阳' ? 'bg-orange-500' : 'bg-slate-400'}`} style={{ width: `${(entry.count / totalItems) * 100}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {statusStats.map((entry) => (
+            <div key={entry.status} className="rounded-xl bg-slate-50 p-3">
+              <p className="text-xs text-slate-500">{entry.status}</p>
+              <p className="mt-1 text-lg font-semibold text-ink">{entry.count}</p>
             </div>
           ))}
         </div>

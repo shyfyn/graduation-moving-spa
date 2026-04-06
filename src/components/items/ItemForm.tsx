@@ -5,6 +5,7 @@ import { itemSchema, type ItemFormValues } from '../../schemas/itemSchema'
 import { AppButton } from '../common/AppButton'
 import { AppInput } from '../common/AppInput'
 import { AppSelect } from '../common/AppSelect'
+import { classifyItemDraft } from '../../utils/smartFeatures'
 
 const noteTemplates = ['开箱优先', '先带走', '易碎轻放', '放箱顶层', '送人前确认']
 
@@ -23,7 +24,9 @@ export const ItemForm = ({ defaultValues, onSubmit, submitText = '保存' }: { d
   })
 
   const destination = watch('destination')
+  const name = watch('name')
   const notes = watch('notes') ?? ''
+  const suggestion = classifyItemDraft(name)
 
   const appendNote = (template: string) => {
     const next = notes ? `${notes}${notes.endsWith('；') ? '' : '；'}${template}` : template
@@ -37,6 +40,25 @@ export const ItemForm = ({ defaultValues, onSubmit, submitText = '保存' }: { d
         <AppInput {...register('name')} placeholder="例如：冬季衣物" />
         {errors.name ? <p className="text-xs text-rose-600">{errors.name.message}</p> : null}
       </div>
+      {suggestion ? (
+        <div className="rounded-xl bg-blue-50 px-3 py-3 text-sm text-blue-700">
+          <p className="font-semibold">智能推荐</p>
+          <p className="mt-1 text-xs">{suggestion.reason}，建议分类为“{suggestion.category}”，目的地为“{suggestion.destination}”。</p>
+          <button
+            type="button"
+            className="mt-2 rounded-full bg-white px-3 py-1 text-xs font-medium text-blue-700"
+            onClick={() => {
+              setValue('category', suggestion.category)
+              setValue('destination', suggestion.destination)
+              setValue('status', suggestion.status)
+              setValue('isFragile', suggestion.isFragile)
+              if (suggestion.notes && !notes) setValue('notes', suggestion.notes)
+            }}
+          >
+            一键应用建议
+          </button>
+        </div>
+      ) : null}
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
           <label className="text-sm font-medium text-ink">分类</label>
