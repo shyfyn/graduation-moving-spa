@@ -1,0 +1,1 @@
+export const LoadingBlock = ({ label = '加载中...' }: { label?: string }) => <div className="rounded-2xl border border-dashed border-slate-200 bg-white/80 px-4 py-10 text-center text-sm text-slate-500">{label}</div>
