@@ -7,16 +7,16 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 const variantClasses = {
-  primary: 'bg-ink text-white hover:bg-slate-800',
-  secondary: 'bg-white text-ink border border-slate-200 hover:border-slate-300',
-  ghost: 'bg-transparent text-slate-600 hover:bg-slate-100',
-  danger: 'bg-rose-600 text-white hover:bg-rose-700',
+  primary: 'bg-gradient-to-r from-ink to-slate-700 text-white shadow-soft hover:from-slate-800 hover:to-slate-700',
+  secondary: 'glass-panel text-ink hover:bg-white',
+  ghost: 'bg-transparent text-slate-600 hover:bg-white/70',
+  danger: 'bg-gradient-to-r from-rose-600 to-rose-500 text-white shadow-soft hover:from-rose-700 hover:to-rose-600',
 }
 
 export const AppButton = ({ children, className, variant = 'primary', fullWidth = false, ...props }: PropsWithChildren<Props>) => (
   <button
     className={cn(
-      'inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60',
+      'inline-flex items-center justify-center rounded-2xl px-4 py-3 text-sm font-semibold transition duration-200 disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.99]',
       variantClasses[variant],
       fullWidth && 'w-full',
       className,

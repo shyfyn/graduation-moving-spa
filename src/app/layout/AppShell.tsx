@@ -4,11 +4,13 @@ import { PageContainer } from './PageContainer'
 import { TopBar } from './TopBar'
 
 export const AppShell = () => (
-  <div className="min-h-screen bg-cream bg-paper-grid bg-grid">
-    <TopBar />
-    <PageContainer>
-      <Outlet />
-    </PageContainer>
-    <MobileTabBar />
+  <div className="min-h-screen bg-shell-radial">
+    <div className="mx-auto min-h-screen max-w-3xl px-0 md:px-4">
+      <TopBar />
+      <PageContainer>
+        <Outlet />
+      </PageContainer>
+      <MobileTabBar />
+    </div>
   </div>
 )

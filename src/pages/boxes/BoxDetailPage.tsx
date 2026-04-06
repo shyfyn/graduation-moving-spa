@@ -6,7 +6,7 @@ import { EmptyState } from '../../components/common/EmptyState'
 import { SearchBar } from '../../components/common/SearchBar'
 import { BoxStatusActions } from '../../components/boxes/BoxStatusActions'
 import { BoxSummary } from '../../components/boxes/BoxSummary'
-import { LogisticsForm } from '../../components/boxes/LogisticsForm'
+import { LogisticsForm } from '../../components/boxes/BoxForm'
 import { QRCodePanel } from '../../components/boxes/QRCodePanel'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useToast } from '../../hooks/useToast'
@@ -94,60 +94,70 @@ export const BoxDetailPage = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <BoxSummary box={box} itemCount={boxItems.length} totalValue={totalValue} />
-      <BoxStatusActions
-        status={box.status}
-        shipWarning={box.status === '已封箱' ? shipWarning || undefined : undefined}
-        onPack={() => safeChangeStatus('打包中')}
-        onSeal={() => safeChangeStatus('已封箱')}
-        onShip={() => safeChangeStatus('已寄出')}
-        onDeliver={() => safeChangeStatus('已签收')}
-      />
-      <AppButton fullWidth variant="secondary" onClick={handleScatter} disabled={box.status !== '打包中' || !boxItems.length}>
-        一键清空并打散箱子
-      </AppButton>
-      <AppCard className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-ink">物流信息</h3>
-          <AppButton variant="ghost" onClick={() => setShowLogistics((value) => !value)}>{showLogistics ? '收起' : '编辑物流'}</AppButton>
-        </div>
-        <p className="text-sm text-slate-500">{box.logisticsCompany ? `${box.logisticsCompany} / ${box.trackingNumber ?? '--'}` : '当前尚未填写物流信息。'}</p>
-        {showLogistics ? <LogisticsForm defaultValues={{ logisticsCompany: box.logisticsCompany, trackingNumber: box.trackingNumber }} onSubmit={handleLogisticsSave} /> : null}
-      </AppCard>
-      <QRCodePanel value={box.qrCodeValue} onCopy={async () => {
-        if (!box.qrCodeValue) return
-        await navigator.clipboard.writeText(box.qrCodeValue)
-        triggerHaptic('success')
-        toast.success('二维码内容已复制')
-      }} />
-      <AppCard className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="text-sm font-semibold text-ink">箱内物品</h3>
-          <span className="text-xs text-slate-500">{filteredBoxItems.length}/{boxItems.length} 件</span>
-        </div>
-        <SearchBar value={search} onChange={setSearch} placeholder="搜索箱内物品" />
-        {Object.keys(groupedItems).length ? Object.entries(groupedItems).map(([category, group]) => (
-          <div key={category} className="space-y-2">
-            <div className="flex items-center justify-between px-1 text-xs text-slate-500">
-              <span>{category}</span>
-              <span>{group.length} 件</span>
-            </div>
-            {group.map((item) => (
-              <div key={item.id} className="rounded-xl bg-slate-50 px-3 py-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-ink">{item.name}</p>
-                    <p className="mt-1 text-xs text-slate-500">数量 {item.quantity ?? 1}{item.isFragile ? ' · 易碎' : ''}</p>
-                  </div>
-                  <AppButton variant="ghost" onClick={() => void handleRemove(item.id)} disabled={box.status !== '打包中'}>移出</AppButton>
-                </div>
+      <div className="grid gap-4 lg:grid-cols-[0.92fr_1.08fr]">
+        <div className="space-y-4">
+          <BoxStatusActions
+            status={box.status}
+            shipWarning={box.status === '已封箱' ? shipWarning || undefined : undefined}
+            onPack={() => safeChangeStatus('打包中')}
+            onSeal={() => safeChangeStatus('已封箱')}
+            onShip={() => safeChangeStatus('已寄出')}
+            onDeliver={() => safeChangeStatus('已签收')}
+          />
+          <AppButton fullWidth variant="secondary" onClick={handleScatter} disabled={box.status !== '打包中' || !boxItems.length}>
+            一键清空并打散箱子
+          </AppButton>
+          <AppCard className="space-y-3 bg-gradient-to-br from-white/92 to-slate-50/92">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="section-kicker">Logistics</p>
+                <h3 className="mt-1 text-lg font-semibold text-ink">物流信息</h3>
               </div>
-            ))}
+              <AppButton variant="ghost" onClick={() => setShowLogistics((value) => !value)}>{showLogistics ? '收起' : '编辑物流'}</AppButton>
+            </div>
+            <p className="text-sm leading-6 text-slate-500">{box.logisticsCompany ? `${box.logisticsCompany} / ${box.trackingNumber ?? '--'}` : '当前尚未填写物流信息。'}</p>
+            {showLogistics ? <LogisticsForm defaultValues={{ logisticsCompany: box.logisticsCompany, trackingNumber: box.trackingNumber }} onSubmit={handleLogisticsSave} /> : null}
+          </AppCard>
+          <QRCodePanel value={box.qrCodeValue} onCopy={async () => {
+            if (!box.qrCodeValue) return
+            await navigator.clipboard.writeText(box.qrCodeValue)
+            triggerHaptic('success')
+            toast.success('二维码内容已复制')
+          }} />
+        </div>
+
+        <AppCard className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="section-kicker">Contents</p>
+              <h3 className="mt-1 text-lg font-semibold text-ink">箱内物品</h3>
+            </div>
+            <span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">{filteredBoxItems.length}/{boxItems.length} 件</span>
           </div>
-        )) : <EmptyState title={boxItems.length ? '没有搜索结果' : '箱子为空'} description={boxItems.length ? '换个关键词试试。' : '到装箱工作台把对应目的地的物品加入这个箱子。'} />}
-      </AppCard>
+          <SearchBar value={search} onChange={setSearch} placeholder="搜索箱内物品" />
+          {Object.keys(groupedItems).length ? Object.entries(groupedItems).map(([category, group]) => (
+            <div key={category} className="space-y-2">
+              <div className="flex items-center justify-between px-1 text-xs text-slate-500">
+                <span>{category}</span>
+                <span>{group.length} 件</span>
+              </div>
+              {group.map((item) => (
+                <div key={item.id} className="rounded-2xl bg-white/70 px-3 py-3 ring-1 ring-slate-100">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-ink">{item.name}</p>
+                      <p className="mt-1 text-xs text-slate-500">数量 {item.quantity ?? 1}{item.isFragile ? ' · 易碎' : ''}</p>
+                    </div>
+                    <AppButton variant="ghost" onClick={() => void handleRemove(item.id)} disabled={box.status !== '打包中'}>移出</AppButton>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )) : <EmptyState title={boxItems.length ? '没有搜索结果' : '箱子为空'} description={boxItems.length ? '换个关键词试试。' : '到装箱工作台把对应目的地的物品加入这个箱子。'} />}
+        </AppCard>
+      </div>
     </div>
   )
 }
-

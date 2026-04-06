@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, SlidersHorizontal } from 'lucide-react'
 import { AppButton } from '../../components/common/AppButton'
+import { AppCard } from '../../components/common/AppCard'
 import { AppDialog } from '../../components/common/AppDialog'
 import { BatchActionBar } from '../../components/items/BatchActionBar'
 import { ItemFiltersPanel } from '../../components/items/ItemFilters'
@@ -77,7 +78,7 @@ export const ItemsPage = () => {
       name: `${item.name}（复制）`,
       category: item.category,
       destination: item.destination,
-      status: item.destination === '北京-亦庄' || item.destination === '老家-朝阳' ? '未处理' : '未处理',
+      status: '未处理',
       estimatedValue: item.estimatedValue,
       notes: item.notes,
       isFragile: item.isFragile,
@@ -149,9 +150,29 @@ export const ItemsPage = () => {
   }
 
   return (
-    <div className="space-y-4">
-      <AppButton fullWidth onClick={openCreate}><Plus className="mr-1 size-4" />新增物品</AppButton>
-      <ItemFiltersPanel filters={filters} onChange={setFilters} />
+    <div className="space-y-5">
+      <AppCard className="overflow-hidden bg-gradient-to-br from-white/92 via-white/78 to-yizhuang-50/70">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="section-kicker">Inventory Studio</p>
+            <h2 className="mt-2 text-[1.7rem] font-bold tracking-tight text-ink">先把每件东西定义清楚，再去谈装箱和物流。</h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">这页应该像一个移动端清单编辑器：筛选紧凑、批量动作明确、单条信息一眼能判断去向和状态。</p>
+          </div>
+          <AppButton onClick={openCreate}><Plus className="mr-1 size-4" />新增物品</AppButton>
+        </div>
+      </AppCard>
+
+      <AppCard className="space-y-4">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="size-4 text-slate-400" />
+          <div>
+            <p className="section-kicker">Filters</p>
+            <h2 className="mt-1 text-lg font-semibold text-ink">筛选与排序</h2>
+          </div>
+        </div>
+        <ItemFiltersPanel filters={filters} onChange={setFilters} />
+      </AppCard>
+
       <BatchActionBar
         selectedCount={selectedCount}
         batchDestination={batchDestination}
@@ -162,7 +183,18 @@ export const ItemsPage = () => {
         onApply={handleBatchApply}
         onDelete={handleBulkDelete}
       />
-      <ItemList items={filteredItems} selectedIds={selectedIds} onToggleSelect={toggleSelectedId} onEdit={openEdit} onDuplicate={openDuplicate} onDelete={handleDelete} />
+
+      <AppCard className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="section-kicker">Items</p>
+            <h2 className="mt-1 text-lg font-semibold text-ink">当前结果</h2>
+          </div>
+          <span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">{filteredItems.length} 条</span>
+        </div>
+        <ItemList items={filteredItems} selectedIds={selectedIds} onToggleSelect={toggleSelectedId} onEdit={openEdit} onDuplicate={openDuplicate} onDelete={handleDelete} />
+      </AppCard>
+
       {selectedCount ? <AppButton variant="ghost" fullWidth onClick={clearSelectedIds}>清除已选</AppButton> : null}
       <AppDialog open={open} title={editingItem ? '编辑物品' : '新增物品'} onClose={closeDialog}>
         <ItemForm defaultValues={editingDefaults} onSubmit={handleSave} submitText={editingItem ? '保存修改' : formSeed ? '创建复制项' : '创建物品'} />
@@ -170,5 +202,3 @@ export const ItemsPage = () => {
     </div>
   )
 }
-
-

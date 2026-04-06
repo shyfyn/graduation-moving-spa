@@ -12,10 +12,14 @@ const tabs = [
 ]
 
 export const MobileTabBar = () => (
-  <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/70 bg-white/90 px-2 py-2 backdrop-blur">
-    <div className="mx-auto grid max-w-3xl grid-cols-6 gap-1">
+  <nav className="fixed inset-x-0 bottom-0 z-40 px-3 pb-3 pt-2">
+    <div className="glass-panel mx-auto grid max-w-3xl grid-cols-6 gap-1 rounded-[28px] px-2 py-2 shadow-float">
       {tabs.map(({ to, label, icon: Icon }) => (
-        <NavLink key={to} to={to} className={({ isActive }) => cn('flex flex-col items-center gap-1 rounded-xl px-1 py-2 text-[11px] transition', isActive ? 'bg-slate-100 text-ink' : 'text-slate-500')}>
+        <NavLink
+          key={to}
+          to={to}
+          className={({ isActive }) => cn('flex flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-medium transition', isActive ? 'bg-ink text-white shadow-soft' : 'text-slate-500')}
+        >
           <Icon className="size-4" />
           <span>{label}</span>
         </NavLink>
