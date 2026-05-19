@@ -1,14 +1,14 @@
 {
-  "name": "毕业搬家行李管理系统",
-  "short_name": "毕业搬家",
-  "description": "本地优先管理毕业搬家物品、箱子、装箱进度和备份。",
+  "name": "百时教育化学反馈助手",
+  "short_name": "化学反馈",
+  "description": "百时教育化学反馈助手，用于快速整理课堂学习情况并生成家长反馈。",
   "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f6f1e8",
-  "theme_color": "#1f2937",
+  "background_color": "#f8fafc",
+  "theme_color": "#1d4ed8",
   "lang": "zh-CN",
   "icons": [
     {
