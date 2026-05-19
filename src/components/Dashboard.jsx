@@ -25,6 +25,8 @@ export default function Dashboard({
   onMarkSent,
 }) {
   const classTypeLabelMap = Object.fromEntries(CLASS_TYPES.map((item) => [item.id, item.label]))
+  const hasAnyWork = savedStudents.length > 0 || feedbackHistory.length > 0
+
   const todayRecords = feedbackHistory.filter((record) => {
     const now = new Date()
     const value = new Date(record.createdAt)
@@ -71,18 +73,20 @@ export default function Dashboard({
   return (
     <div className="space-y-4">
       <div className="rounded-[2rem] border border-slate-200 bg-white/90 p-5 shadow-sm">
-        <p className="text-[11px] uppercase tracking-[0.28em] text-slate-400">Today Dashboard</p>
+        <p className="text-[11px] uppercase tracking-[0.28em] text-slate-400">Today Workspace</p>
         <div className="mt-2 flex items-end justify-between gap-4">
           <div>
-            <h1 className="text-[1.7rem] font-bold tracking-tight text-slate-900">把今日待反馈学生压进一个工作台。</h1>
-            <p className="mt-2 text-sm leading-6 text-slate-500">先看待发送，再回到写反馈。工作流要像老师备课后的处理台，不像表单堆积页。</p>
+            <h1 className="text-[1.7rem] font-bold tracking-tight text-slate-900">今日课后反馈</h1>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              先处理待发送记录，再进入写反馈。常用学生、今日状态和高频考点都放在这里，减少来回切换。
+            </p>
           </div>
           <button
             type="button"
             onClick={() => onStartFeedback(null)}
             className="hidden rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-200 hover:bg-blue-700 md:inline-flex"
           >
-            直接写反馈
+            {hasAnyWork ? '直接写反馈' : '写第一条反馈'}
           </button>
         </div>
       </div>
@@ -92,17 +96,16 @@ export default function Dashboard({
         <StatCard label="待发送数量" value={pendingCount} icon={Clock3} tone="border-amber-200 bg-amber-50 text-amber-800" />
         <StatCard label="已复制数量" value={copiedCount} icon={CopyCheck} tone="border-indigo-200 bg-indigo-50 text-indigo-800" />
         <StatCard label="已发送数量" value={sentCount} icon={CheckCircle2} tone="border-emerald-200 bg-emerald-50 text-emerald-800" />
-        <StatCard label="常用学生数量" value={savedStudents.length} icon={Users} tone="border-slate-200 bg-slate-50 text-slate-800" />
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="mb-3 flex items-center justify-between">
           <div>
             <p className="text-sm font-bold text-slate-800">今日待反馈学生</p>
-            <p className="text-[11px] text-slate-500">常用学生今天是否已经完成反馈，一眼看清。</p>
+            <p className="text-[11px] text-slate-500">优先从这里开始处理，直接看今天的反馈状态。</p>
           </div>
           <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-[11px] text-slate-500">
-            <Users className="h-3 w-3" /> 今日进度
+            <Users className="h-3 w-3" /> 常用学生 {savedStudents.length}
           </div>
         </div>
         <div className="space-y-3">
@@ -116,7 +119,9 @@ export default function Dashboard({
                       {latestTodayRecord ? getStatusLabel(latestTodayRecord.status) : '待反馈'}
                     </span>
                   </div>
-                  <p className="mt-1 text-[11px] text-slate-500">{latestTodayRecord ? summarizeTopics(latestTodayRecord.selectedTopics) : '今天还没有生成反馈记录'}</p>
+                  <p className="mt-1 text-[11px] text-slate-500">
+                    {latestTodayRecord ? summarizeTopics(latestTodayRecord.selectedTopics) : '今天还没有生成反馈记录'}
+                  </p>
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -139,8 +144,16 @@ export default function Dashboard({
               </div>
             ))
           ) : (
-            <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-400">
-              还没有常用学生，先在写反馈页保存学生。
+            <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-8 text-center">
+              <p className="text-sm text-slate-400">还没有常用学生，先写一条反馈并保存学生信息。</p>
+              <button
+                type="button"
+                onClick={() => onStartFeedback(null)}
+                className="mt-4 inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                去写第一条反馈
+                <ArrowRight className="h-4 w-4" />
+              </button>
             </div>
           )}
         </div>
@@ -152,7 +165,7 @@ export default function Dashboard({
             <ArrowRight className="h-4 w-4 text-blue-500" />
             <div>
               <p className="text-sm font-bold text-slate-800">最近学生</p>
-              <p className="text-[11px] text-slate-500">按最近生成记录去重，快速回到常用对象。</p>
+              <p className="text-[11px] text-slate-500">按最近生成记录去重，方便继续写后续反馈。</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -168,7 +181,17 @@ export default function Dashboard({
                 </button>
               ))
             ) : (
-              <span className="text-sm text-slate-400">还没有历史记录。</span>
+              <div className="rounded-2xl bg-slate-50 px-4 py-5 text-sm text-slate-400">
+                <p>还没有历史记录。</p>
+                <button
+                  type="button"
+                  onClick={() => onStartFeedback(null)}
+                  className="mt-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100"
+                >
+                  去生成第一条反馈
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -178,7 +201,7 @@ export default function Dashboard({
             <Sparkles className="h-4 w-4 text-purple-500" />
             <div>
               <p className="text-sm font-bold text-slate-800">常用知识点</p>
-              <p className="text-[11px] text-slate-500">根据历史记录统计 Top 8，点一下直接带入写反馈。</p>
+              <p className="text-[11px] text-slate-500">根据历史记录统计 Top 8，点一下就能直接带入写反馈。</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -195,7 +218,9 @@ export default function Dashboard({
                 </button>
               ))
             ) : (
-              <span className="text-sm text-slate-400">生成几次反馈后，这里会出现高频考点。</span>
+              <div className="rounded-2xl bg-slate-50 px-4 py-5 text-sm text-slate-400">
+                生成几次反馈后，这里会自动出现高频考点，方便下次快速补全。
+              </div>
             )}
           </div>
         </div>
@@ -205,7 +230,7 @@ export default function Dashboard({
         <div className="mb-3 flex items-center justify-between">
           <div>
             <p className="text-sm font-bold text-slate-800">今日记录列表</p>
-            <p className="text-[11px] text-slate-500">今天生成过的反馈，支持查看与标记已发送。</p>
+            <p className="text-[11px] text-slate-500">今天生成过的反馈都在这里，适合集中收尾和标记发送。</p>
           </div>
         </div>
         <div className="space-y-3">
@@ -220,7 +245,8 @@ export default function Dashboard({
                     </span>
                   </div>
                   <p className="mt-1 text-[11px] text-slate-500">
-                    {new Date(record.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · {classTypeLabelMap[record.classType] || record.classType} · {summarizeTopics(record.selectedTopics)}
+                    {new Date(record.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ·{' '}
+                    {classTypeLabelMap[record.classType] || record.classType} · {summarizeTopics(record.selectedTopics)}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -244,8 +270,16 @@ export default function Dashboard({
               </div>
             ))
           ) : (
-            <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-400">
-              今天还没有生成反馈，先从上方学生卡片开始。
+            <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-8 text-center">
+              <p className="text-sm text-slate-400">今天还没有生成反馈，可以先从上方学生卡片开始。</p>
+              <button
+                type="button"
+                onClick={() => onStartFeedback(null)}
+                className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-100"
+              >
+                开始写反馈
+                <ArrowRight className="h-4 w-4" />
+              </button>
             </div>
           )}
         </div>
