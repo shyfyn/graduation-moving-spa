@@ -148,8 +148,66 @@ export const INITIAL_SYLLABUS = {
 }
 
 export const HIGHLIGHTS = ['思维敏捷', '计算准确', '笔记工整', '互动积极', '基础扎实', '举一反三', '状态极佳', '进步明显', '逻辑清晰', '书写规范']
-export const PROBLEM_TAGS = ['计算粗心', '概念混淆', '审题不清', '书写不规范', '逻辑跳跃', '基础薄弱', '公式记混', '单位漏写']
 export const HOMEWORK_TYPES = ['试卷', '错题本', '练习册', '预习', '复习笔记']
+
+export const PROBLEM_CATEGORIES = [
+  {
+    id: 'knowledge',
+    label: '知识问题',
+    desc: '概念、原理、知识链条方面的问题',
+    tags: [
+      { id: 'concept_confusion', label: '概念混淆', example: '电解质/非电解质、氧化剂/还原剂' },
+      { id: 'principle_unclear', label: '原理不清', example: '勒夏特列原理、电化学原理' },
+      { id: 'knowledge_gap', label: '知识断层', example: '必修基础影响选修内容' },
+    ],
+  },
+  {
+    id: 'method',
+    label: '方法问题',
+    desc: '解题方法、模型建构、分析路径方面的问题',
+    tags: [
+      { id: 'conservation_weak', label: '守恒意识弱', example: '电荷守恒、物料守恒、电子守恒' },
+      { id: 'graph_analysis_weak', label: '图像分析弱', example: '平衡图像、沉淀溶解曲线' },
+      { id: 'inference_chain_break', label: '推断链条断裂', example: '有机推断、无机流程题' },
+    ],
+  },
+  {
+    id: 'habit',
+    label: '习惯问题',
+    desc: '审题、书写、单位、规范表达方面的问题',
+    tags: [
+      { id: 'careless_reading', label: '审题不细', example: '忽略“过量”“少量”“标准状况”' },
+      { id: 'writing_not_standard', label: '书写不规范', example: '离子方程式、电极反应式' },
+      { id: 'unit_awareness_weak', label: '单位意识差', example: 'mol/L、g/mol、L/mol' },
+    ],
+  },
+]
+
+export const ABILITY_CATEGORIES = [
+  {
+    id: 'thinking',
+    label: '思维能力',
+    desc: '信息提取、分析链条和模型建构能力',
+    tags: [
+      { id: 'condition_extraction', label: '条件提取', example: '能否抓住题干中的限制条件' },
+      { id: 'model_building', label: '模型建构', example: '能否建立电化学、平衡、流程题模型' },
+      { id: 'reasoning_expression', label: '推理表达', example: '能否把分析链条说清楚' },
+    ],
+  },
+  {
+    id: 'execution',
+    label: '执行能力',
+    desc: '计算、规范、步骤落实方面的能力',
+    tags: [
+      { id: 'calculation_execution', label: '计算执行', example: '步骤完整、结果准确、过程可追溯' },
+      { id: 'equation_expression', label: '方程式表达', example: '离子方程式、电极反应式书写规范' },
+      { id: 'experimental_norms', label: '实验规范', example: '实验步骤、现象、结论表达完整' },
+    ],
+  },
+]
+
+export const PROBLEM_TAGS = PROBLEM_CATEGORIES.flatMap((category) => category.tags.map((tag) => tag.label))
+export const ABILITY_TAGS = ABILITY_CATEGORIES.flatMap((category) => category.tags.map((tag) => tag.label))
 
 export const STUDENT_LEVELS = [
   { id: 'base', label: '基础巩固', desc: '注重概念，多鼓励' },
@@ -169,4 +227,11 @@ export const FEEDBACK_LENGTHS = [
   { id: 'short', label: '精简 (短消息)', desc: '适合快速反馈' },
   { id: 'standard', label: '标准 (推荐)', desc: '结构完整' },
   { id: 'detail', label: '详细 (报告)', desc: '深入分析' },
+]
+
+export const HISTORY_STATUS_OPTIONS = [
+  { id: 'all', label: '全部' },
+  { id: 'generated', label: '待发送' },
+  { id: 'copied', label: '已复制' },
+  { id: 'sent', label: '已发送' },
 ]
