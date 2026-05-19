@@ -1,11 +1,26 @@
 import React from 'react'
-import { UserPlus, AlignLeft, Presentation } from 'lucide-react'
-import { STUDENT_LEVELS, FEEDBACK_LENGTHS, CLASS_TYPES } from '../data/constants'
+import { UserPlus, AlignLeft, Presentation, MessageCircleHeart, Sparkles } from 'lucide-react'
+import { STUDENT_LEVELS, FEEDBACK_LENGTHS, CLASS_TYPES, FEEDBACK_STYLES, PARENT_PREFERENCES } from '../data/constants'
 
-export default function StudentForm({ name, setName, level, setLevel, classType, setClassType, length, setLength, onSave }) {
+export default function StudentForm({
+  name,
+  setName,
+  level,
+  setLevel,
+  classType,
+  setClassType,
+  length,
+  setLength,
+  feedbackStyle,
+  setFeedbackStyle,
+  parentPreference,
+  setParentPreference,
+  onSave,
+  isStudentSaved,
+}) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="mb-4 flex items-end gap-3">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="flex-1">
           <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">学生姓名</label>
           <input
@@ -14,13 +29,17 @@ export default function StudentForm({ name, setName, level, setLevel, classType,
             placeholder="输入姓名..."
             className="w-full border-b-2 border-slate-100 py-1 text-lg font-bold transition-colors placeholder:text-slate-300 focus:border-blue-500 focus:outline-none"
           />
+          {name.trim() && !isStudentSaved ? (
+            <p className="mt-2 text-[11px] text-amber-600">当前学生尚未保存，可保存为常用学生。</p>
+          ) : null}
         </div>
         <button
           onClick={onSave}
-          className="flex h-10 w-10 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-600 transition-all hover:bg-blue-100"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-4 text-sm font-semibold text-blue-600 transition-all hover:bg-blue-100"
           title="保存到常用学生列表"
         >
           <UserPlus className="h-5 w-5" />
+          保存为常用学生
         </button>
         <div className="w-20 border-l border-slate-100 pl-3">
           <label className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-slate-400">日期</label>
@@ -89,6 +108,50 @@ export default function StudentForm({ name, setName, level, setLevel, classType,
               }`}
             >
               {item.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <label className="mb-2 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          <Sparkles className="h-3 w-3" /> 反馈风格
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          {FEEDBACK_STYLES.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setFeedbackStyle(item.id)}
+              className={`rounded-lg border p-2 text-left text-xs transition-all ${
+                feedbackStyle === item.id
+                  ? 'border-violet-500 bg-violet-50 text-violet-700 ring-1 ring-violet-500'
+                  : 'border-slate-200 bg-white text-slate-500 hover:border-violet-300'
+              }`}
+            >
+              <div className="font-bold">{item.label}</div>
+              <div className="text-[10px] opacity-70">{item.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <label className="mb-2 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          <MessageCircleHeart className="h-3 w-3" /> 家长沟通偏好
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          {PARENT_PREFERENCES.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setParentPreference(item.id)}
+              className={`rounded-lg border p-2 text-left text-xs transition-all ${
+                parentPreference === item.id
+                  ? 'border-emerald-500 bg-emerald-50 text-emerald-700 ring-1 ring-emerald-500'
+                  : 'border-slate-200 bg-white text-slate-500 hover:border-emerald-300'
+              }`}
+            >
+              <div className="font-bold">{item.label}</div>
+              <div className="text-[10px] opacity-70">{item.desc}</div>
             </button>
           ))}
         </div>

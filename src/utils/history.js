@@ -10,6 +10,8 @@ export function createHistoryRecord({
   rawNotes,
   newHomework,
   feedbackText,
+  feedbackStyle,
+  parentPreference,
 }) {
   const now = new Date()
   const iso = now.toISOString()
@@ -30,6 +32,8 @@ export function createHistoryRecord({
     rawNotes,
     newHomework,
     feedbackText,
+    feedbackStyle: feedbackStyle || 'objective',
+    parentPreference: parentPreference || 'detailed',
     status: 'generated',
   }
 }

@@ -149,6 +149,23 @@ export const INITIAL_SYLLABUS = {
 
 export const HIGHLIGHTS = ['思维敏捷', '计算准确', '笔记工整', '互动积极', '基础扎实', '举一反三', '状态极佳', '进步明显', '逻辑清晰', '书写规范']
 export const HOMEWORK_TYPES = ['试卷', '错题本', '练习册', '预习', '复习笔记']
+export const QUICK_NOTE_PHRASES = [
+  '阳极反应式书写不稳定',
+  '离子方程式漏写条件',
+  '审题时忽略过量/少量',
+  '计算过程跳步',
+  '能跟上思路，但独立完成还不稳',
+  '课堂互动积极',
+  '需要加强错题复盘',
+]
+
+export const HOMEWORK_TEMPLATES = [
+  { id: 'reuse_prev', label: '复用上次作业格式', template: '延续上次作业格式，结合本节内容补充针对性练习。' },
+  { id: 'mistake_book', label: '错题订正模板', template: '整理并订正本节错题，写清错误原因和正确思路。' },
+  { id: 'workbook', label: '练习册页码模板', template: '完成《五三》P__-__，并标记仍不确定的题目。' },
+  { id: 'paper_fix', label: '试卷订正模板', template: '完成试卷错题订正，重做课堂易错题并总结失分原因。' },
+  { id: 'preview_next', label: '预习模板', template: '预习下一节内容，圈出不理解的概念和例题。' },
+]
 
 export const PROBLEM_CATEGORIES = [
   {
@@ -229,9 +246,54 @@ export const FEEDBACK_LENGTHS = [
   { id: 'detail', label: '详细 (报告)', desc: '深入分析' },
 ]
 
+export const FEEDBACK_STYLES = [
+  { id: 'warm', label: '温和鼓励型', desc: '更柔和，适合需要多鼓励的家长' },
+  { id: 'objective', label: '客观诊断型', desc: '客观分析问题，适合日常反馈' },
+  { id: 'strict', label: '严肃督促型', desc: '问题指出更直接，但仍保持专业' },
+  { id: 'professional', label: '高端专业型', desc: '更像机构老师正式学情反馈' },
+  { id: 'sprint', label: '考前冲刺型', desc: '更强调提分重点和执行安排' },
+  { id: 'friendly', label: '低年级家长友好型', desc: '表达更好理解，减少压力感' },
+]
+
+export const PARENT_PREFERENCES = [
+  { id: 'detailed', label: '喜欢详细', desc: '希望知道过程和问题细节' },
+  { id: 'brief', label: '喜欢简短', desc: '希望信息紧凑、结论明确' },
+  { id: 'direct', label: '能接受直接指出问题', desc: '可以更直白地写出问题点' },
+  { id: 'encouraging', label: '需要多鼓励', desc: '表达更柔和，避免过硬措辞' },
+  { id: 'homework', label: '重视作业监督', desc: '作业安排和落实提醒要更明确' },
+]
+
 export const HISTORY_STATUS_OPTIONS = [
   { id: 'all', label: '全部' },
   { id: 'generated', label: '待发送' },
   { id: 'copied', label: '已复制' },
   { id: 'sent', label: '已发送' },
 ]
+
+export const HISTORY_DATE_OPTIONS = [
+  { id: 'today', label: '今天' },
+  { id: '7d', label: '近 7 天' },
+  { id: '30d', label: '近 30 天' },
+  { id: 'all', label: '全部' },
+]
+
+export const HISTORY_VIEW_OPTIONS = [
+  { id: 'timeline', label: '按时间' },
+  { id: 'student', label: '按学生' },
+]
+
+export const REWRITE_OPTIONS = [
+  { id: 'shorter', label: '更简洁', instruction: '请在不改变事实信息、不新增成绩排名、不编造细节的前提下，把下面反馈改写为更简洁、更紧凑、适合微信发送的版本。' },
+  { id: 'gentler', label: '更温和', instruction: '请在不改变事实信息、不新增成绩排名、不编造细节的前提下，把下面反馈改写为更温和、更容易让家长接受的版本。' },
+  { id: 'professional', label: '更专业', instruction: '请在不改变事实信息、不新增成绩排名、不编造细节的前提下，把下面反馈改写为更专业、更像化学老师学情诊断的版本。' },
+  { id: 'no_emoji', label: '去掉表情', instruction: '请在不改变事实信息、不新增成绩排名、不编造细节的前提下，把下面反馈改写为不使用任何 Emoji 的版本。' },
+]
+
+export const TOPIC_ALIAS_MAP = {
+  氧化还原反应概念辨析: ['氧还', '氧化还原', '电子转移'],
+  原电池电极反应书写: ['原电池', '电极', '正负极'],
+  电解池原理: ['电解', '阴阳极', '电极反应'],
+  离子方程式书写与正误判断: ['离子方程式', '离子式', '条件'],
+  化学平衡状态判断: ['平衡', '平衡判断', '平衡状态'],
+  '化学平衡常数(K/Qc)': ['平衡常数', 'k值', 'qc'],
+}

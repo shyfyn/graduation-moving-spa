@@ -28,6 +28,8 @@ export function buildSystemPrompt({
   selectedProblemTags,
   selectedAbilityTags,
   newHomework,
+  feedbackStyleInfo,
+  parentPreferenceInfo,
 }) {
   const selectedLength = FEEDBACK_LENGTHS.find((item) => item.id === feedbackLength)
   const focusRule = classTypeFocusMap[classType] ?? classTypeFocusMap.new_lesson
@@ -69,6 +71,8 @@ export function buildSystemPrompt({
     `课堂亮点：${joinOrFallback(selectedHighlights)}`,
     `错因标签：${joinOrFallback(selectedProblemTags)}`,
     `能力维度：${joinOrFallback(selectedAbilityTags)}`,
+    `反馈风格：${feedbackStyleInfo?.label ?? '未填写'}（${feedbackStyleInfo?.desc ?? '未填写'}）`,
+    `家长沟通偏好：${parentPreferenceInfo?.label ?? '未填写'}（${parentPreferenceInfo?.desc ?? '未填写'}）`,
     `老师随手记：${rawNotes?.trim() || '未填写'}`,
     `本次新作业：${newHomework?.trim() || '未填写'}`,
   ].join('\n')
@@ -85,6 +89,8 @@ export function buildUserContent({
   prevHomework,
   rawNotes,
   newHomework,
+  feedbackStyleInfo,
+  parentPreferenceInfo,
 }) {
   return [
     `学生姓名：${studentName?.trim() || '未填写'}`,
@@ -94,6 +100,8 @@ export function buildUserContent({
     `课堂亮点：${joinOrFallback(selectedHighlights)}`,
     `错因标签：${joinOrFallback(selectedProblemTags)}`,
     `能力维度：${joinOrFallback(selectedAbilityTags)}`,
+    `反馈风格：${feedbackStyleInfo?.label || '未填写'}`,
+    `家长沟通偏好：${parentPreferenceInfo?.label || '未填写'}`,
     `上节作业反馈：${prevHomework?.trim() || '未填写'}`,
     `老师随手记：${rawNotes?.trim() || '未填写'}`,
     `本次新作业：${newHomework?.trim() || '未填写'}`,

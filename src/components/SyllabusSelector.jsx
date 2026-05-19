@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Search, PlusCircle, X, Beaker, Atom, Flame, TestTube2, Layers } from 'lucide-react'
+import { TOPIC_ALIAS_MAP } from '../data/constants'
 
 const getModuleIcon = (name) => {
   if (name.includes('必修一')) return <Beaker className="h-4 w-4" />
@@ -9,15 +10,33 @@ const getModuleIcon = (name) => {
   return <TestTube2 className="h-4 w-4" />
 }
 
-export default function SyllabusSelector({ library, activeModule, setActiveModule, selectedTopics, onToggle, onAddCustom }) {
+export default function SyllabusSelector({
+  library,
+  activeModule,
+  setActiveModule,
+  selectedTopics,
+  recentTopics = [],
+  onToggle,
+  onAddCustom,
+  carryoverTopic,
+}) {
   const [searchQuery, setSearchQuery] = useState('')
   const [customTopic, setCustomTopic] = useState('')
 
   const getFilteredTopics = () => {
     if (!searchQuery) return library[activeModule]
-    return Object.values(library)
+    const keyword = searchQuery.toLowerCase().trim()
+    return Array.from(
+      new Set(
+        Object.values(library)
       .flat()
-      .filter((topic) => topic.toLowerCase().includes(searchQuery.toLowerCase()))
+          .filter((topic) => {
+            if (topic.toLowerCase().includes(keyword)) return true
+            const aliases = TOPIC_ALIAS_MAP[topic] || []
+            return aliases.some((alias) => alias.toLowerCase().includes(keyword) || keyword.includes(alias.toLowerCase()))
+          }),
+      ),
+    )
   }
 
   return (
@@ -28,10 +47,36 @@ export default function SyllabusSelector({ library, activeModule, setActiveModul
           <input
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="搜索考点 (如: 氧化还原、电化学...)"
+            placeholder="搜索考点 (如: 氧化还原、氧还、电极...)"
             className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-4 text-xs focus:border-purple-400 focus:outline-none focus:ring-1 focus:ring-purple-200"
           />
         </div>
+        {carryoverTopic ? (
+          <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+            已从工作台带入：{carryoverTopic}
+          </div>
+        ) : null}
+        {recentTopics.length ? (
+          <div className="mt-3">
+            <div className="mb-2 text-[11px] font-semibold text-slate-500">最近使用</div>
+            <div className="flex flex-wrap gap-2">
+              {recentTopics.map((topic) => (
+                <button
+                  key={topic}
+                  type="button"
+                  onClick={() => onToggle(topic)}
+                  className={`rounded-full border px-3 py-1 text-[11px] transition-all ${
+                    selectedTopics.includes(topic)
+                      ? 'border-purple-600 bg-purple-600 text-white'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-purple-300'
+                  }`}
+                >
+                  {topic}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div className="flex h-64">
